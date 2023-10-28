@@ -17,7 +17,8 @@ async def on_ready():
 
 Cogs_list = [
     "fetch_depths", 
-    "price"
+    "price",
+    "help"
 ]
 
 for Cog in Cogs_list:
