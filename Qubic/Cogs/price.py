@@ -40,18 +40,24 @@ class Price(commands.Cog):
     async def price(self, ctx):
         try:
             # Acknowledge the command immediately
-            await ctx.defer()
+            # await ctx.defer()
+            initial_response = await ctx.send(content="Processing your request, pls wait...")
 
             qubic_price = get_price()
             if qubic_price is not None:
                 formatted_price = "{:.8f}".format(qubic_price)
-                await ctx.send(f"$ {formatted_price}")
+                # await ctx.send(f"$ {formatted_price}")
+                await initial_response.edit(f"${formatted_price}")
             else:
-                await ctx.send(content="Failed to get the price. Pls try again")
+                # await ctx.send(content="Failed to get the price. Pls try again")
+                message = f"Failed to get the price. Pls try again"
+                await initial_response.edit(content=message)
         except Exception as e:
             # If an error occurs, send an error message
-            # await ctx.send(f"An error occurred: {e}")
-            await ctx.send(f"An error occured, pls try again in a minute")
+            
+            # await ctx.send(f"")
+            message = f"An error occured, pls try again in a minute"
+            await initial_response.edit(content=message)
 
 def setup(bot):
     bot.add_cog(Price(bot))
