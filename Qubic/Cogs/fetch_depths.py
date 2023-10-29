@@ -141,6 +141,8 @@ class MarketDepthCog(commands.Cog):
         # Defer the response
         # await ctx.defer()
 
+        initial_response = await ctx.send(content="Processing your request,pls wait...")
+
         try:
             qubic_price = get_price()
             per_per_billion = qubic_price * 1_000_000_000
@@ -150,7 +152,7 @@ class MarketDepthCog(commands.Cog):
             # Handle the exception if there's a connection error
             message = "Error: Unable to fetch the rates. Please try again ."
 
-        await ctx.send(content=message)
+        await initial_response.edit(content=message)
 
 def setup(bot):
     bot.add_cog(MarketDepthCog(bot))
