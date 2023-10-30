@@ -7,11 +7,11 @@ import requests
 
 def format_quantity(quantity):
     if quantity >= 1_000_000_000_000:
-        return f"{quantity / 1_000_000_000_000:.2f} trillion"
+        return f"{quantity / 1_000_000_000_000:.2f} Tln"
     elif quantity >= 1_000_000_000:
-        return f"{quantity / 1_000_000_000:.2f} billion"
+        return f"{quantity / 1_000_000_000:.2f} Bln"
     elif quantity >= 1_000_000:
-        return f"{quantity / 1_000_000:.2f} million"
+        return f"{quantity / 1_000_000:.2f} Mln"
     else:
         return str(quantity)
 
@@ -93,7 +93,7 @@ class MarketDepthCog(commands.Cog):
                     formatted_quantity = format_quantity(total_quantity)
                     formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
-                    message = f"With ${formatted_amount}, you can bid for {formatted_quantity} Qubic coins."
+                    message = f"With ${formatted_amount} you can bid for {formatted_quantity} Qubic coins."
                     await initial_response.edit(content=message)
                 else:
                     await initial_response.edit(content=f'Request failed with status code {response.status}')
@@ -102,23 +102,64 @@ class MarketDepthCog(commands.Cog):
 
     
     #this function calculates how much  qubic coins are worth per billion. 
-    @commands.slash_command(description="view the price of qubic per billion")
+    # @commands.slash_command(description="view the price of qubic per billion")
+    # async def rate(self, ctx):
+    #     # Defer the response
+    #     # await ctx.defer()
+
+    #     initial_response = await ctx.send(content="Processing your request,pls wait...")
+
+    #     try:
+    #         qubic_price = get_price()
+    #         per_per_billion = qubic_price * 1_000_000_000
+    #         formatted_number = "{:.3f}".format(per_per_billion)
+    #         message = f"Current rate per billion qubic coins is ${formatted_number}/bln"
+    #     except requests.exceptions.RequestException as e:
+    #         # Handle the exception if there's a connection error
+    #         message = "Error: Unable to fetch the rates. Please try again ."
+
+    #     await initial_response.edit(content=message)
+    
+    @commands.slash_command(description="view the rate and top bids/asks")
     async def rate(self, ctx):
-        # Defer the response
-        # await ctx.defer()
+        initial_response = await ctx.send(content="Processing your request, please wait...")
 
-        initial_response = await ctx.send(content="Processing your request,pls wait...")
+        url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
+        custom_user_agent = 'MyCustomUserAgent/1.0'
+        headers = {'User-Agent': custom_user_agent}
 
-        try:
-            qubic_price = get_price()
-            per_per_billion = qubic_price * 1_000_000_000
-            formatted_number = "{:.3f}".format(per_per_billion)
-            message = f"Current rate per billion qubic coins is ${formatted_number}/bln"
-        except requests.exceptions.RequestException as e:
-            # Handle the exception if there's a connection error
-            message = "Error: Unable to fetch the rates. Please try again ."
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    data = await response.json()
 
-        await initial_response.edit(content=message)
+                    asks = data['asks']
+                    bids = data['bids']
 
+                    top_4_asks = sorted(asks, key=lambda x: float(x[1]), reverse=True)[:4]
+                    top_4_bids = sorted(bids, key=lambda x: float(x[1]), reverse=True)[:4]
+
+                    ask_message = "Sell on safe.trade:\n\n"
+                    for price, quantity in top_4_asks:
+                        price_per_bln = int(float(price) * 1_000_000_000)
+                        ask_message += f"{format_quantity(float(quantity))}: {price_per_bln} usd/bln\n"
+
+                    bid_message = "Buy on safe.trade:\n\n"
+                    for price, quantity in top_4_bids:
+                        price_per_bln = int(float(price) * 1_000_000_000)
+                        bid_message += f"{format_quantity(float(quantity))}: {price_per_bln} usd/bln\n"
+
+                    price_per_bln = int(get_price() * 1_000_000_000)
+                    message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" + f"{ask_message}\n" + f"{bid_message}\n"
+                    await initial_response.edit(content=message)
+                else:
+                    await initial_response.edit(content=f'Request failed with status code {response.status}')
+
+
+
+
+
+    
+    
 def setup(bot):
     bot.add_cog(MarketDepthCog(bot))
