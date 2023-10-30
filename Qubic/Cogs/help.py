@@ -14,7 +14,8 @@ class Help(commands.Cog):
         message = (
             "/ask - you can use this command to see how much USD you'll get for selling Qubic. Simple type ask and enter the qubic quantity\n"
             "/bid - you can use this command to see how much qubic you'll get for your USD. simply type /bid and enter the usd you want to buy with.\n"
-            "/price - use this command to view the price of qubic\n"
+            "/price - use this command to view the price of qubic\n\n"
+            "/rate -  to view the current rate per billion and top bids/asks\n\n"
             "/help to view all commands"
         )
         
