@@ -2,7 +2,18 @@ import aiohttp
 import discord
 from discord.ext import commands
 from Cogs.price import get_price
-import requests 
+import requests
+
+
+def format_quantity(quantity):
+    if quantity >= 1_000_000_000_000:
+        return f"{quantity / 1_000_000_000_000:.2f} trillion"
+    elif quantity >= 1_000_000_000:
+        return f"{quantity / 1_000_000_000:.2f} billion"
+    elif quantity >= 1_000_000:
+        return f"{quantity / 1_000_000:.2f} million"
+    else:
+        return str(quantity)
 
 class MarketDepthCog(commands.Cog):
     def __init__(self, bot):
@@ -10,12 +21,7 @@ class MarketDepthCog(commands.Cog):
 
     @commands.slash_command(description="see how much you'll sell  $ for qubic")
     async def ask(self, ctx, quantity: int):
-        # Defer the response
-        # await ctx.defer()
-        
-        # Send an initial response to inform the user that the bot is processing their request
         initial_response = await ctx.send(content="Processing your request...")
-
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
         custom_user_agent = 'MyCustomUserAgent/1.0'
@@ -26,7 +32,6 @@ class MarketDepthCog(commands.Cog):
                 if response.status == 200:
                     data = await response.json()
 
-                    # Extract the asks
                     asks = data['asks']
 
                     total_quantity = 0
@@ -39,64 +44,23 @@ class MarketDepthCog(commands.Cog):
                             total_amount += price * ask_quantity
                         else:
                             remaining_quantity = quantity - total_quantity
+                            total_quantity += remaining_quantity  # Add the remaining quantity to the total quantity
                             total_amount += price * remaining_quantity
                             break
 
-                    message = f"With {quantity} Qubic tokens, you can sell for {total_amount}$."
-                    
-                    # Edit the initial response to include the final result
+                    total_amount = int(total_amount)  # Remove decimals from USD result
+                    formatted_quantity = format_quantity(total_quantity)
+                    formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
+
+                    message = f"With {formatted_quantity} Qubic coins, you can sell for ${formatted_amount}."
                     await initial_response.edit(content=message)
-
-
-                    # Edit the initial deferred message to include the response
-                    # await ctx.send(content=message)
-
                 else:
-                    # await ctx.send(content=f'Request failed with status code {response.status}')
                     await initial_response.edit(content=f'Request failed with status code {response.status}')
 
 
-    # @commands.slash_command(description="see how much you'll buy  $ for qubic")
-    # async def bid(self, ctx, amount:int):
-    #     # Defer the response
-    #     # await ctx.defer()
-
-    #     url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
-    #     custom_user_agent = 'MyCustomUserAgent/1.0'
-    #     headers = {'User-Agent': custom_user_agent}
-
-    #     async with aiohttp.ClientSession() as session:
-    #         async with session.get(url, headers=headers) as response:
-    #             if response.status == 200:
-    #                 data = await response.json()
-
-    #                 # Extract the bids
-    #                 bids = data['bids']
-
-    #                 total_quantity = 0
-    #                 total_amount = 0
-    #                 for price, bid_quantity in bids:
-    #                     price = float(price)
-    #                     bid_quantity = float(bid_quantity)
-    #                     if total_amount + (price * bid_quantity) <= amount:
-    #                         total_quantity += bid_quantity
-    #                         total_amount += price * bid_quantity
-    #                     else:
-    #                         remaining_amount = amount - total_amount
-    #                         total_quantity += remaining_amount / price
-    #                         break
-
-    #                 message = f"With {amount}$, you can bid for {total_quantity} Qubic tokens."
-
-    #                 # Edit the initial deferred message to include the response
-    #                 await ctx.send(content=message)
-
-    #             else:
-    #                 await ctx.send(content=f'Request failed with status code {response.status}')
     
     @commands.slash_command(description="see how much you'll buy $ for qubic")
     async def bid(self, ctx, amount: int):
-        # Send an initial response to inform the user that the bot is processing their request
         initial_response = await ctx.send(content="Processing your request...")
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
@@ -108,7 +72,6 @@ class MarketDepthCog(commands.Cog):
                 if response.status == 200:
                     data = await response.json()
 
-                    # Extract the bids
                     bids = data['bids']
 
                     total_quantity = 0
@@ -121,14 +84,17 @@ class MarketDepthCog(commands.Cog):
                             total_amount += price * bid_quantity
                         else:
                             remaining_amount = amount - total_amount
-                            total_quantity += remaining_amount / price
+                            remaining_quantity = remaining_amount / price
+                            total_quantity += remaining_quantity  # Add the remaining quantity to the total quantity
+                            total_amount += price * remaining_quantity
                             break
 
-                    message = f"With {amount}$, you can bid for {total_quantity} Qubic tokens."
+                    total_amount = int(total_amount)  # Remove decimals from USD result
+                    formatted_quantity = format_quantity(total_quantity)
+                    formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
-                    # Edit the initial response to include the final result
+                    message = f"With ${formatted_amount}, you can bid for {formatted_quantity} Qubic coins."
                     await initial_response.edit(content=message)
-
                 else:
                     await initial_response.edit(content=f'Request failed with status code {response.status}')
 
