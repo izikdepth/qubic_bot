@@ -93,7 +93,7 @@ class MarketDepthCog(commands.Cog):
                     formatted_quantity = format_quantity(total_quantity)
                     formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
-                    message = f"With ${formatted_amount} you can bid for {formatted_quantity} Qubic coins."
+                    message = f"With ${formatted_amount} you can buy for {formatted_quantity} Qubic coins."
                     await initial_response.edit(content=message)
                 else:
                     await initial_response.edit(content=f'Request failed with status code {response.status}')
