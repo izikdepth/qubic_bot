@@ -136,8 +136,13 @@ class MarketDepthCog(commands.Cog):
                     asks = data['asks']
                     bids = data['bids']
 
-                    top_4_asks = sorted(asks, key=lambda x: float(x[0]), reverse=True)[:4]
-                    top_4_bids = sorted(bids, key=lambda x: float(x[0]), reverse=True)[:4]
+                    #sorted based on price
+                    # top_4_asks = sorted(asks, key=lambda x: float(x[0]), reverse=True)[:4]
+                    # top_4_bids = sorted(bids, key=lambda x: float(x[0]), reverse=True)[:4]
+
+                    #sorted based on quantity
+                    top_4_asks = sorted(asks, key=lambda x: float(x[1]), reverse=True)[:4]
+                    top_4_bids = sorted(bids, key=lambda x: float(x[1]), reverse=True)[:4]
 
                     ask_message = "Sell on safe.trade:\n\n"
                     for price, quantity in top_4_asks:
