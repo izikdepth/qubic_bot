@@ -20,7 +20,7 @@ class MarketDepthCog(commands.Cog):
         self.bot = bot
 
     @commands.slash_command(description="see how much you'll sell  $ for qubic")
-    async def ask(self, ctx, quantity: int):
+    async def sell(self, ctx, quantity: int):
         initial_response = await ctx.send(content="Processing your request...")
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
@@ -60,7 +60,7 @@ class MarketDepthCog(commands.Cog):
 
     
     @commands.slash_command(description="see how much you'll buy $ for qubic")
-    async def bid(self, ctx, amount: int):
+    async def buy(self, ctx, amount: int):
         initial_response = await ctx.send(content="Processing your request...")
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
