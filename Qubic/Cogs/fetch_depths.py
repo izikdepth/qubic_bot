@@ -19,9 +19,9 @@ class MarketDepthCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(description="see how much you'll sell  $ for qubic")
+    @commands.slash_command(description="see how much you'll get by selling qubic")
     async def sell(self, ctx, quantity: int):
-        initial_response = await ctx.send(content="Processing your request...")
+        await ctx.respond(content="Processing your request...", ephemeral=True)
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
         custom_user_agent = 'MyCustomUserAgent/1.0'
@@ -53,15 +53,17 @@ class MarketDepthCog(commands.Cog):
                     formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
                     message = f"With {formatted_quantity} Qubic coins, you can sell for ${formatted_amount}."
-                    await initial_response.edit(content=message)
+                    
+                    await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await initial_response.edit(content=f'Request failed with status code {response.status}')
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}')
 
 
     
-    @commands.slash_command(description="see how much you'll buy $ for qubic")
+    @commands.slash_command(description="see how much you'll by buying qubic with ur $")
     async def buy(self, ctx, amount: int):
-        initial_response = await ctx.send(content="Processing your request...")
+        await ctx.respond(content="Processing your request...", ephemeral=True)
+
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
         custom_user_agent = 'MyCustomUserAgent/1.0'
@@ -94,35 +96,14 @@ class MarketDepthCog(commands.Cog):
                     formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
                     message = f"With ${formatted_amount} you can buy for {formatted_quantity} Qubic coins."
-                    await initial_response.edit(content=message)
+                    await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await initial_response.edit(content=f'Request failed with status code {response.status}')
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}')
 
 
-
-    
-    #this function calculates how much  qubic coins are worth per billion. 
-    # @commands.slash_command(description="view the price of qubic per billion")
-    # async def rate(self, ctx):
-    #     # Defer the response
-    #     # await ctx.defer()
-
-    #     initial_response = await ctx.send(content="Processing your request,pls wait...")
-
-    #     try:
-    #         qubic_price = get_price()
-    #         per_per_billion = qubic_price * 1_000_000_000
-    #         formatted_number = "{:.3f}".format(per_per_billion)
-    #         message = f"Current rate per billion qubic coins is ${formatted_number}/bln"
-    #     except requests.exceptions.RequestException as e:
-    #         # Handle the exception if there's a connection error
-    #         message = "Error: Unable to fetch the rates. Please try again ."
-
-    #     await initial_response.edit(content=message)
-    
     @commands.slash_command(description="view the rate and top bids/asks")
     async def rate(self, ctx):
-        initial_response = await ctx.send(content="Processing your request, please wait...")
+        initial_response = await ctx.respond(content="Processing your request...", ephemeral=True)
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
         custom_user_agent = 'MyCustomUserAgent/1.0'
@@ -136,34 +117,28 @@ class MarketDepthCog(commands.Cog):
                     asks = data['asks']
                     bids = data['bids']
 
-                    #sorted based on price
-                    # top_4_asks = sorted(asks, key=lambda x: float(x[0]), reverse=True)[:4]
-                    top_4_bids = sorted(bids, key=lambda x: float(x[0]), reverse=True)[:4]
-
-                    #sorted based on quantity
-                    top_4_asks = sorted(asks, key=lambda x: float(x[1]), reverse=True)[:4]
-                    # top_4_bids = sorted(bids, key=lambda x: float(x[1]), reverse=True)[:4]
+                    # Get the first 5 asks and bids
+                    first_5_asks = asks[:5]
+                    first_5_bids = bids[:5]
 
                     ask_message = "Sell on safe.trade:\n\n"
-                    for price, quantity in top_4_asks:
+                    for price, quantity in first_5_asks:
+                        total_price = int(float(price) * float(quantity))
                         price_per_bln = int(float(price) * 1_000_000_000)
-                        ask_message += f"{format_quantity(float(quantity))}: {price_per_bln} usd/bln\n"
+                        ask_message += f"{format_quantity(float(quantity))} Bln: {total_price} usd ({price_per_bln} usd/bln)\n"
 
                     bid_message = "Buy on safe.trade:\n\n"
-                    for price, quantity in top_4_bids:
+                    for price, quantity in first_5_bids:
+                        total_price = int(float(price) * float(quantity))
                         price_per_bln = int(float(price) * 1_000_000_000)
-                        bid_message += f"{format_quantity(float(quantity))}: {price_per_bln} usd/bln\n"
+                        bid_message += f"{format_quantity(float(quantity))} Bln: {total_price} usd ({price_per_bln} usd/bln)\n"
 
                     price_per_bln = int(get_price() * 1_000_000_000)
                     message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" + f"{ask_message}\n" + f"{bid_message}\n"
-                    await initial_response.edit(content=message)
+                    await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await initial_response.edit(content=f'Request failed with status code {response.status}')
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
 
-
-
-
-    
     
 def setup(bot):
     bot.add_cog(MarketDepthCog(bot))
