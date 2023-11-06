@@ -19,8 +19,10 @@ class MarketDepthCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(description="see how much you'll get by selling qubic")
-    async def sell(self, ctx, quantity: int):
+
+    
+    @commands.slash_command(description="see how much you'll by buying qubic with ur $")
+    async def buy(self, ctx, amount: int):
         await ctx.respond(content="Processing your request...", ephemeral=True)
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
@@ -39,11 +41,12 @@ class MarketDepthCog(commands.Cog):
                     for price, ask_quantity in asks:
                         price = float(price)
                         ask_quantity = float(ask_quantity)
-                        if total_quantity + ask_quantity <= quantity:
+                        if total_amount + (price * ask_quantity) <= amount:
                             total_quantity += ask_quantity
                             total_amount += price * ask_quantity
                         else:
-                            remaining_quantity = quantity - total_quantity
+                            remaining_amount = amount - total_amount
+                            remaining_quantity = remaining_amount / price
                             total_quantity += remaining_quantity  # Add the remaining quantity to the total quantity
                             total_amount += price * remaining_quantity
                             break
@@ -52,18 +55,15 @@ class MarketDepthCog(commands.Cog):
                     formatted_quantity = format_quantity(total_quantity)
                     formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
-                    message = f"With {formatted_quantity} Qubic coins, you can sell for ${formatted_amount}."
-                    
+                    message = f"With ${formatted_amount} you can buy for {formatted_quantity} Qubic coins."
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await ctx.followup.send(content=f'Request failed with status code {response.status}')
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
 
 
-    
-    @commands.slash_command(description="see how much you'll by buying qubic with ur $")
-    async def buy(self, ctx, amount: int):
+    @commands.slash_command(description="see how much you'll get by selling qubic")
+    async def sell(self, ctx, quantity: int):
         await ctx.respond(content="Processing your request...", ephemeral=True)
-
 
         url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
         custom_user_agent = 'MyCustomUserAgent/1.0'
@@ -81,12 +81,11 @@ class MarketDepthCog(commands.Cog):
                     for price, bid_quantity in bids:
                         price = float(price)
                         bid_quantity = float(bid_quantity)
-                        if total_amount + (price * bid_quantity) <= amount:
+                        if total_quantity + bid_quantity <= quantity:
                             total_quantity += bid_quantity
                             total_amount += price * bid_quantity
                         else:
-                            remaining_amount = amount - total_amount
-                            remaining_quantity = remaining_amount / price
+                            remaining_quantity = quantity - total_quantity
                             total_quantity += remaining_quantity  # Add the remaining quantity to the total quantity
                             total_amount += price * remaining_quantity
                             break
@@ -95,10 +94,12 @@ class MarketDepthCog(commands.Cog):
                     formatted_quantity = format_quantity(total_quantity)
                     formatted_amount = "{:,}".format(total_amount)  # Add commas as thousand separators
 
-                    message = f"With ${formatted_amount} you can buy for {formatted_quantity} Qubic coins."
+                    message = f"With {formatted_quantity} Qubic coins, you can sell for ${formatted_amount}."
+                    
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await ctx.followup.send(content=f'Request failed with status code {response.status}')
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+
 
 
     @commands.slash_command(description="view the rate and top bids/asks")
