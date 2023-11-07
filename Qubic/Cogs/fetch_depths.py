@@ -125,14 +125,16 @@ class MarketDepthCog(commands.Cog):
                         price = float(ask[0])
                         total_price = int(price * quantity)
                         price_per_bln = int(price * 1_000_000_000)
-                        ask_message += f"{format_quantity(quantity)}: {price_per_bln} usd/bln\n"
+                        formatted_quantity = f"{quantity // 1_000_000_000} bln"  # Format quantity directly in the message
+                        ask_message += f"{formatted_quantity}: {price_per_bln} usd/bln\n"
 
                     bid_message = "Buy on safe.trade:\n\n"
                     for bid, quantity in zip(bids, quantities):
                         price = float(bid[0])
                         total_price = int(price * quantity)
                         price_per_bln = int(price * 1_000_000_000)
-                        bid_message += f"{format_quantity(quantity)}: {price_per_bln} usd/bln\n"
+                        formatted_quantity = f"{quantity // 1_000_000_000} bln"  # Format quantity directly in the message
+                        bid_message += f"{formatted_quantity}: {price_per_bln} usd/bln\n"
 
                     price_per_bln = int(get_price() * 1_000_000_000)
                     message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" + f"{ask_message}\n" + f"{bid_message}\n"
@@ -140,8 +142,8 @@ class MarketDepthCog(commands.Cog):
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
 
-    
 
+        
     
 def setup(bot):
     bot.add_cog(MarketDepthCog(bot))
