@@ -120,24 +120,24 @@ class MarketDepthCog(commands.Cog):
                     asks = data['asks']
                     bids = data['bids']
 
-                    ask_message = "Sell on safe.trade:\n\n"
+                    bid_message = "Sell on safe.trade:\n\n"
                     for ask, quantity in zip(asks, quantities):
                         price = float(ask[0])
                         total_price = int(price * quantity)
                         price_per_bln = int(price * 1_000_000_000)
                         formatted_quantity = f"{quantity // 1_000_000_000} bln"  # Format quantity directly in the message
-                        ask_message += f"{formatted_quantity}: {price_per_bln} usd/bln\n"
+                        bid_message+= f"{formatted_quantity}: {price_per_bln} usd/bln\n"
 
-                    bid_message = "Buy on safe.trade:\n\n"
+                    ask_message = "Buy on safe.trade:\n\n"
                     for bid, quantity in zip(bids, quantities):
                         price = float(bid[0])
                         total_price = int(price * quantity)
                         price_per_bln = int(price * 1_000_000_000)
                         formatted_quantity = f"{quantity // 1_000_000_000} bln"  # Format quantity directly in the message
-                        bid_message += f"{formatted_quantity}: {price_per_bln} usd/bln\n"
+                        ask_message  += f"{formatted_quantity}: {price_per_bln} usd/bln\n"
 
                     price_per_bln = int(get_price() * 1_000_000_000)
-                    message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" + f"{ask_message}\n" + f"{bid_message}\n"
+                    message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
