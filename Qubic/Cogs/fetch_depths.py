@@ -126,19 +126,20 @@ class MarketDepthCog(commands.Cog):
                     for price, quantity in first_5_asks:
                         total_price = int(float(price) * float(quantity))
                         price_per_bln = int(float(price) * 1_000_000_000)
-                        ask_message += f"{format_quantity(float(quantity))} Bln: {total_price} usd ({price_per_bln} usd/bln)\n"
+                        ask_message += f"Qty: {format_quantity(float(quantity))} , Total: {total_price} usd, Price per Bln: {price_per_bln} usd/bln\n"
 
                     bid_message = "Buy on safe.trade:\n\n"
                     for price, quantity in first_5_bids:
                         total_price = int(float(price) * float(quantity))
                         price_per_bln = int(float(price) * 1_000_000_000)
-                        bid_message += f"{format_quantity(float(quantity))} Bln: {total_price} usd ({price_per_bln} usd/bln)\n"
+                        bid_message += f"Qty: {format_quantity(float(quantity))} , Total: {total_price} usd, Price per Bln: {price_per_bln} usd/bln\n"
 
                     price_per_bln = int(get_price() * 1_000_000_000)
                     message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" + f"{ask_message}\n" + f"{bid_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+
 
     
 def setup(bot):
