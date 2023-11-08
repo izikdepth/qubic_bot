@@ -175,7 +175,7 @@ class MarketDepthCog(commands.Cog):
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
                         bid_message  += f"{formatted_quantity} :  ${format(rate_per_bln, ',.0f')}/bln : total ${format(total_price, ',')}\n"
 
-                    message = f"{bid_message}\n" + f"{ask_message}\n"
+                    message = f"{ask_message}\n" + f"{bid_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
