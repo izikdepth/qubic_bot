@@ -125,16 +125,19 @@ class MarketDepthCog(commands.Cog):
                     for quantity in quantities:
                         total_price = self.calculate_total(asks, quantity)
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
-                        bid_message+= f"{formatted_quantity} : total ${total_price}\n"
+                        # bid_message+= f"{formatted_quantity} : total ${total_price}\n"
+                        bid_message+= f"{formatted_quantity} : total ${format(total_price, ',')}\n"
 
                     ask_message = "Buy on safe.trade:\n\n"
                     for quantity in quantities:
                         total_price = self.calculate_total(bids, quantity)
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
-                        ask_message  += f"{formatted_quantity} : total ${total_price}\n"
+                        # ask_message  += f"{formatted_quantity} : total ${total_price}\n"
+                        ask_message  += f"{formatted_quantity} : total ${format(total_price, ',')}\n"
 
                     price_per_bln = int(get_price() * 1_000_000_000)
-                    message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
+                    # message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
+                    message = f"Current rate per billion qubic coins is ${format(price_per_bln, ',')}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
