@@ -14,6 +14,9 @@ def format_quantity(quantity):
         return f"{quantity / 1_000_000:.2f} Mln"
     else:
         return str(quantity)
+    
+def rates():
+    pass
 
 class MarketDepthCog(commands.Cog):
     def __init__(self, bot):
@@ -100,8 +103,6 @@ class MarketDepthCog(commands.Cog):
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
 
-
-
     @commands.slash_command(description="view the rate and top bids/asks")
     async def rate(self, ctx):
         initial_response = await ctx.respond(content="Processing your request...", ephemeral=True)
@@ -110,7 +111,7 @@ class MarketDepthCog(commands.Cog):
         custom_user_agent = 'MyCustomUserAgent/1.0'
         headers = {'User-Agent': custom_user_agent}
 
-        quantities = [10_000_000_000, 50_000_000_000, 100_000_000_000, 200_000_000_000]
+        quantities = [10_000_000_000,50_000_000_000, 100_000_000_000, 200_000_000_000]
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
@@ -121,20 +122,16 @@ class MarketDepthCog(commands.Cog):
                     bids = data['bids']
 
                     bid_message = "Sell on safe.trade:\n\n"
-                    for ask, quantity in zip(asks, quantities):
-                        price = float(ask[0])
-                        total_price = int(price * quantity)
-                        price_per_bln = int(price * 1_000_000_000)
-                        formatted_quantity = f"{quantity // 1_000_000_000} bln"  # Format quantity directly in the message
-                        bid_message+= f"{formatted_quantity}: {price_per_bln} usd/bln\n"
+                    for quantity in quantities:
+                        total_price = self.calculate_total(asks, quantity)
+                        formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
+                        bid_message+= f"{formatted_quantity} : total ${total_price}\n"
 
                     ask_message = "Buy on safe.trade:\n\n"
-                    for bid, quantity in zip(bids, quantities):
-                        price = float(bid[0])
-                        total_price = int(price * quantity)
-                        price_per_bln = int(price * 1_000_000_000)
-                        formatted_quantity = f"{quantity // 1_000_000_000} bln"  # Format quantity directly in the message
-                        ask_message  += f"{formatted_quantity}: {price_per_bln} usd/bln\n"
+                    for quantity in quantities:
+                        total_price = self.calculate_total(bids, quantity)
+                        formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
+                        ask_message  += f"{formatted_quantity} : total ${total_price}\n"
 
                     price_per_bln = int(get_price() * 1_000_000_000)
                     message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
@@ -143,7 +140,25 @@ class MarketDepthCog(commands.Cog):
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
 
 
-        
+
+    def calculate_total(self, orders, quantity):
+        total_quantity = 0
+        total_amount = 0
+        for price, order_quantity in orders:
+            price = float(price)
+            order_quantity = float(order_quantity)
+            if total_quantity + order_quantity <= quantity:
+                total_quantity += order_quantity
+                total_amount += price * order_quantity
+            else:
+                remaining_quantity = quantity - total_quantity
+                total_quantity += remaining_quantity
+                total_amount += price * remaining_quantity
+                break
+
+        return int(total_amount)
+
+    
     
 def setup(bot):
     bot.add_cog(MarketDepthCog(bot))
