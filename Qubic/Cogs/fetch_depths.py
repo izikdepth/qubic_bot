@@ -111,7 +111,7 @@ class MarketDepthCog(commands.Cog):
         custom_user_agent = 'MyCustomUserAgent/1.0'
         headers = {'User-Agent': custom_user_agent}
 
-        quantities = [10_000_000_000,50_000_000_000, 100_000_000_000, 200_000_000_000]
+        quantities = [1_000_000_000_000, 10_000_000_000,50_000_000_000, 100_000_000_000, 200_000_000_000]
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
@@ -137,7 +137,8 @@ class MarketDepthCog(commands.Cog):
 
                     price_per_bln = int(get_price() * 1_000_000_000)
                     # message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
-                    message = f"Current rate per billion qubic coins is ${format(price_per_bln, ',')}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
+                    # message = f"Current rate per billion qubic coins is ${format(price_per_bln, ',')}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
+                    message = f"{bid_message}\n" + f"{ask_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
