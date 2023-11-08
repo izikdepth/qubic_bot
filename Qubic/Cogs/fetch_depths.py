@@ -103,6 +103,46 @@ class MarketDepthCog(commands.Cog):
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
 
+    # @commands.slash_command(description="view the rate and top bids/asks")
+    # async def rate(self, ctx):
+    #     initial_response = await ctx.respond(content="Processing your request...", ephemeral=True)
+
+    #     url = "https://safe.trade/api/v2/peatio/public/markets/qubicusdt/depth"
+    #     custom_user_agent = 'MyCustomUserAgent/1.0'
+    #     headers = {'User-Agent': custom_user_agent}
+
+    #     quantities = [1_000_000_000,10_000_000_000,50_000_000_000, 100_000_000_000, 200_000_000_000]
+
+    #     async with aiohttp.ClientSession() as session:
+    #         async with session.get(url, headers=headers) as response:
+    #             if response.status == 200:
+    #                 data = await response.json()
+
+    #                 asks = data['asks']
+    #                 bids = data['bids']
+
+    #                 bid_message = "Sell on safe.trade:\n\n"
+    #                 for quantity in quantities:
+    #                     total_price = self.calculate_total(asks, quantity)
+    #                     formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
+    #                     # bid_message+= f"{formatted_quantity} : total ${total_price}\n"
+    #                     bid_message+= f"{formatted_quantity} : total ${format(total_price, ',')}\n"
+
+    #                 ask_message = "Buy on safe.trade:\n\n"
+    #                 for quantity in quantities:
+    #                     total_price = self.calculate_total(bids, quantity)
+    #                     formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
+    #                     # ask_message  += f"{formatted_quantity} : total ${total_price}\n"
+    #                     ask_message  += f"{formatted_quantity} : total ${format(total_price, ',')}\n"
+
+    #                 price_per_bln = int(get_price() * 1_000_000_000)
+    #                 # message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
+    #                 # message = f"Current rate per billion qubic coins is ${format(price_per_bln, ',')}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
+    #                 message = f"{bid_message}\n" + f"{ask_message}\n"
+    #                 await ctx.followup.send(content=message, ephemeral=True)
+    #             else:
+    #                 await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+    
     @commands.slash_command(description="view the rate and top bids/asks")
     async def rate(self, ctx):
         initial_response = await ctx.respond(content="Processing your request...", ephemeral=True)
@@ -111,7 +151,7 @@ class MarketDepthCog(commands.Cog):
         custom_user_agent = 'MyCustomUserAgent/1.0'
         headers = {'User-Agent': custom_user_agent}
 
-        quantities = [1_000_000_000_000, 10_000_000_000,50_000_000_000, 100_000_000_000, 200_000_000_000]
+        quantities = [1_000_000_000,10_000_000_000,50_000_000_000, 100_000_000_000, 200_000_000_000]
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
@@ -124,24 +164,24 @@ class MarketDepthCog(commands.Cog):
                     bid_message = "Sell on safe.trade:\n\n"
                     for quantity in quantities:
                         total_price = self.calculate_total(asks, quantity)
+                        rate_per_bln = total_price / (quantity // 1_000_000_000)
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
-                        # bid_message+= f"{formatted_quantity} : total ${total_price}\n"
-                        bid_message+= f"{formatted_quantity} : total ${format(total_price, ',')}\n"
+                        bid_message+= f"{formatted_quantity} : ${format(rate_per_bln, ',.0f')}/bln :  total ${format(total_price, ',')}\n"
 
                     ask_message = "Buy on safe.trade:\n\n"
                     for quantity in quantities:
                         total_price = self.calculate_total(bids, quantity)
+                        rate_per_bln = total_price / (quantity // 1_000_000_000)
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
-                        # ask_message  += f"{formatted_quantity} : total ${total_price}\n"
-                        ask_message  += f"{formatted_quantity} : total ${format(total_price, ',')}\n"
+                        ask_message  += f"{formatted_quantity} :  ${format(rate_per_bln, ',.0f')}/bln : total ${format(total_price, ',')}\n"
 
-                    price_per_bln = int(get_price() * 1_000_000_000)
-                    # message = f"Current rate per billion qubic coins is ${price_per_bln}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
-                    # message = f"Current rate per billion qubic coins is ${format(price_per_bln, ',')}/bln\n\n" +  f"{bid_message}\n" + f"{ask_message}\n"
                     message = f"{bid_message}\n" + f"{ask_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
                     await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+
+
+
 
 
 
