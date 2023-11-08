@@ -161,19 +161,19 @@ class MarketDepthCog(commands.Cog):
                     asks = data['asks']
                     bids = data['bids']
 
-                    bid_message = "Sell on safe.trade:\n\n"
+                    ask_message = "Buy on safe.trade:\n\n"
                     for quantity in quantities:
                         total_price = self.calculate_total(asks, quantity)
                         rate_per_bln = total_price / (quantity // 1_000_000_000)
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
-                        bid_message+= f"{formatted_quantity} : ${format(rate_per_bln, ',.0f')}/bln :  total ${format(total_price, ',')}\n"
+                        ask_message+= f"{formatted_quantity} : ${format(rate_per_bln, ',.0f')}/bln :  total ${format(total_price, ',')}\n"
 
-                    ask_message = "Buy on safe.trade:\n\n"
+                    bid_message = "Sell on safe.trade:\n\n"
                     for quantity in quantities:
                         total_price = self.calculate_total(bids, quantity)
                         rate_per_bln = total_price / (quantity // 1_000_000_000)
                         formatted_quantity = f"{quantity // 1_000_000_000} Bln"  # Format quantity directly in the message
-                        ask_message  += f"{formatted_quantity} :  ${format(rate_per_bln, ',.0f')}/bln : total ${format(total_price, ',')}\n"
+                        bid_message  += f"{formatted_quantity} :  ${format(rate_per_bln, ',.0f')}/bln : total ${format(total_price, ',')}\n"
 
                     message = f"{bid_message}\n" + f"{ask_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
