@@ -61,7 +61,7 @@ class MarketDepthCog(commands.Cog):
                     message = f"With ${formatted_amount} you can buy for {formatted_quantity} Qubic coins."
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}, pls try again', ephemeral=True)
 
 
     @commands.slash_command(description="see how much you'll get by selling qubic")
@@ -101,7 +101,7 @@ class MarketDepthCog(commands.Cog):
                     
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+                    await ctx.followup.send(content=f'Request failed with status code {response.status}, pls try again', ephemeral=True)
 
     # @commands.slash_command(description="view the rate and top bids/asks")
     # async def rate(self, ctx):
@@ -178,7 +178,7 @@ class MarketDepthCog(commands.Cog):
                     message = f"{ask_message}\n" + f"{bid_message}\n"
                     await ctx.followup.send(content=message, ephemeral=True)
                 else:
-                    await ctx.followup.send(content=f'Request failed with status code {response.status}', ephemeral=True)
+                    await ctx.followup.send(content=f'Request failed with status code {response.status},pls try again', ephemeral=True)
 
 
 
